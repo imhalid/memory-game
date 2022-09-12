@@ -11,12 +11,37 @@
   margin-top: 1rem;
 }
 
+.card {
+  position: relative;
+}
+
 .card-grid {
   padding: 2rem;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(4, 1fr);
   gap: 1rem;
+}
+
+.card .front {
+  transform: rotateY(90deg);
+  transition: all ease-in 0.2s;
+  position: absolute;
+}
+
+.flipped .front {
+  transform: rotateY(0deg);
+  transition-delay: 0.2s;
+}
+
+.card .back {
+  transition: all ease-in 0.2s;
+  transition-delay: 0.2s;
+}
+
+.flipped .back {
+  transform: rotateY(90deg);
+  transition-delay: 0s;
 }
 
 .title {

@@ -1,13 +1,14 @@
 import Head from "next/head";
 import { useState, useEffect } from "react";
+import SingleCards from "../components/SingleCards";
 
 const cardImages = [
-  { src: "/assets/A.png" },
-  { src: "/assets/B.png" },
-  { src: "/assets/C.png" },
-  { src: "/assets/D.png" },
-  { src: "/assets/E.png" },
-  { src: "/assets/F.png" },
+  { src: "/assets/A.png", matched: false },
+  { src: "/assets/B.png", matched: false },
+  { src: "/assets/C.png", matched: false },
+  { src: "/assets/D.png", matched: false },
+  { src: "/assets/E.png", matched: false },
+  { src: "/assets/F.png", matched: false },
 ];
 
 export default function Home() {
@@ -16,27 +17,52 @@ export default function Home() {
 
   const [cards, setCards] = useState([]);
   const [flipped, setFlipped] = useState(0);
+  const [choiceOne, setChoiceOne] = useState(null);
+  const [choiceTwo, setChoiceTwo] = useState(null);
 
   const shuffleCards = () => {
     const shuffleCards = [...cardImages, ...cardImages]
       .sort(() => Math.random() - 0.5)
-      .map((card, index) => ({ ...card, id: Math.random(), flip: flipped }));
+      .map((card) => ({ ...card, id: Math.random() }));
     setCards(shuffleCards);
     setFlipped(0);
   };
 
-  const cardClick = (id) => {
-    setCards(
-      cards.map((card) => {
-        if (card.id === id) {
-          card.flip = 1;
-        }
-        return card;
-      })
-    );
+  // handle a choice
+  const handleChoice = (card) => {
+    choiceOne ? setChoiceTwo(card) : setChoiceOne(card);
   };
 
-  console.log(cards, flipped);
+  // reset choices & increment flipped
+  const resetFlip = () => {
+    setChoiceOne(null);
+    setChoiceTwo(null);
+    setFlipped((prevFlipped) => prevFlipped + 1);
+  };
+
+  // check if the two choices match
+  useEffect(() => {
+    if (choiceOne && choiceTwo) {
+      if (choiceOne.src === choiceTwo.src) {
+        setCards((prevCards) => {
+          return prevCards.map((card) => {
+            if (card.src === choiceOne.src) {
+              return { ...card, matched: true };
+            } else {
+              return card;
+            }
+          });
+        });
+      } else {
+        setTimeout(() => resetFlip(), 1000);
+      }
+      setChoiceOne(null);
+      setChoiceTwo(null);
+    }
+  }, [choiceOne, choiceTwo]);
+
+  console.log(cards);
+
   return (
     <div className="container">
       <Head>
@@ -53,20 +79,14 @@ export default function Home() {
 
         <div className="card-grid">
           {cards.map((card) => (
-            <div className="card" key={card.id}>
-              <img
-                onClick={cardClick}
-                className="front"
-                src={card.src}
-                alt="card front"
-              />
-              <img
-                onClick={cardClick}
-                className="back"
-                src="/assets/Cover.png"
-                alt="card back"
-              />
-            </div>
+            <SingleCards
+              key={card.id}
+              card={card}
+              handleChoice={handleChoice}
+              flippedCards={
+                card === choiceOne || card === choiceTwo || card.matched
+              }
+            />
           ))}
         </div>
       </main>
